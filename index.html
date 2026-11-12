@@ -48,7 +48,8 @@
         <p class="lead">あだ名を入力してください。あだ名がない方は本名でログインできます。</p>
         <form id="login-form">
           <label>あだ名（ない方は本名）<input id="name" name="name" autocomplete="username" placeholder="例：はなちゃん" maxlength="80" required /></label>
-          <label>パスワード<input id="password" name="password" type="password" autocomplete="current-password" required /></label>
+          <label>パスワード<input id="password" name="password" type="password" inputmode="text" lang="ja" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" required /></label>
+          <p class="note">パスワードは日本語で入力できます</p>
           <p id="error" class="error" role="alert"></p>
           <div class="actions">
             <button class="login" name="intent" value="home">ログイン</button>
