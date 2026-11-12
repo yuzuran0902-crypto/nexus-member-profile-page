@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#172139" />
+    <title>NEXUS MEMBER BOOK</title>
+    <link rel="icon" href="./nexus-symbol.png" />
+    <style>
+      :root { color-scheme: light; --ink:#172139; --muted:#677089; }
+      * { box-sizing: border-box; }
+      body { margin:0; min-height:100vh; color:var(--ink); font-family:"Hiragino Sans","Yu Gothic",Arial,sans-serif; background:linear-gradient(125deg,#dff5ff 0%,#e9e5ff 28%,#ffe1ef 55%,#ffe7d8 76%,#fff3bd 100%); }
+      body::before { content:""; position:fixed; width:34rem; height:34rem; left:-12rem; top:-12rem; background:url("./nexus-symbol.png") center/contain no-repeat; opacity:.12; transform:rotate(12deg); pointer-events:none; }
+      body::after { content:""; position:fixed; width:26rem; height:26rem; right:-8rem; bottom:-9rem; border-radius:50%; background:#ed8fbd55; filter:blur(60px); pointer-events:none; }
+      main { position:relative; min-height:100vh; display:grid; place-items:center; padding:2.5rem 1.25rem; }
+      .card { width:min(100%,28rem); padding:2.5rem; border:1px solid #ffffffcc; border-radius:2.15rem; background:#fffffff0; box-shadow:0 30px 90px #1721392e; backdrop-filter:blur(18px); }
+      .brand { display:flex; align-items:center; gap:.8rem; }
+      .mark { width:3rem; height:3rem; padding:.45rem; border-radius:1rem; background:var(--ink); box-shadow:0 8px 20px #17213933; }
+      .mark img { width:100%; height:100%; object-fit:contain; }
+      .brand strong { display:block; letter-spacing:.14em; font-size:1.1rem; }
+      .brand small { display:block; margin-top:.2rem; color:var(--muted); font-size:.65rem; font-weight:800; letter-spacing:.15em; }
+      .lock { display:grid; place-items:center; width:3rem; height:3rem; margin-top:2rem; border-radius:1.05rem; color:white; font-size:1.3rem; background:linear-gradient(125deg,#56b8e7,#8c92e4 28%,#ed8fbd 55%,#ffa27e 78%,#ffd25e); }
+      h1 { margin:1.2rem 0 0; font-size:2rem; line-height:1.15; letter-spacing:-.04em; }
+      .lead { margin:.8rem 0 0; color:var(--muted); font-size:.9rem; font-weight:600; line-height:1.85; }
+      form { margin-top:1.75rem; }
+      label { display:block; margin-top:1rem; font-size:.82rem; font-weight:900; }
+      input { width:100%; margin-top:.55rem; padding:.9rem 1rem; border:2px solid #1721391f; border-radius:1rem; background:#fafafa; color:var(--ink); font:inherit; font-size:.9rem; font-weight:700; outline:none; }
+      input:focus { border-color:var(--ink); background:white; }
+      .error { display:none; margin:1rem 0 0; padding:.8rem 1rem; border-radius:1rem; background:#fff0f3; color:#b73558; font-size:.82rem; font-weight:800; line-height:1.6; }
+      .actions { display:grid; gap:.8rem; margin-top:1.25rem; }
+      button { width:100%; padding:1rem; border:0; border-radius:1rem; font:inherit; font-weight:900; cursor:pointer; transition:transform .18s,opacity .18s; }
+      button:hover { transform:translateY(-2px); }
+      button:disabled { cursor:wait; opacity:.55; transform:none; }
+      .login { color:white; background:linear-gradient(125deg,#56b8e7,#8c92e4 28%,#ed8fbd 55%,#ffa27e 78%,#ffd25e); box-shadow:0 12px 28px #8c92e444; }
+      .divider { display:flex; align-items:center; gap:.75rem; color:#8a91a1; font-size:.72rem; font-weight:800; }
+      .divider::before,.divider::after { content:""; flex:1; height:1px; background:#1721391a; }
+      .create { border:2px solid var(--ink); background:white; color:var(--ink); }
+      .note { margin:1rem 0 0; color:#8a91a1; font-size:.68rem; font-weight:700; text-align:center; }
+      @media (max-width:480px) { .card { padding:1.75rem; border-radius:1.8rem; } h1 { font-size:1.75rem; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="card" aria-labelledby="login-title">
+        <div class="brand"><span class="mark"><img src="./nexus-symbol.png" alt="" /></span><span><strong>NEXUS</strong><small>MEMBER BOOK</small></span></div>
+        <div class="lock" aria-hidden="true">⌁</div>
+        <h1 id="login-title">メンバーログイン</h1>
+        <p class="lead">あだ名を入力してください。あだ名がない方は本名でログインできます。</p>
+        <form id="login-form">
+          <label>あだ名（ない方は本名）<input id="name" name="name" autocomplete="username" placeholder="例：はなちゃん" maxlength="80" required /></label>
+          <label>パスワード<input id="password" name="password" type="password" autocomplete="current-password" required /></label>
+          <p id="error" class="error" role="alert"></p>
+          <div class="actions">
+            <button class="login" name="intent" value="home">ログイン</button>
+            <div class="divider">初めての方</div>
+            <button class="create" name="intent" value="edit">プロフィールを作る</button>
+          </div>
+          <p class="note">認証後、NEXUS MEMBER BOOKへ移動します。</p>
+        </form>
+      </section>
+    </main>
+    <script>
+      const API_ORIGIN = "https://nexus-member-profile-20261112.laborobo.chatgpt.site";
+      const form = document.getElementById("login-form");
+      const error = document.getElementById("error");
+      const nameInput = document.getElementById("name");
+      const passwordInput = document.getElementById("password");
+      const buttons = [...form.querySelectorAll("button")];
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        error.style.display = "none";
+        buttons.forEach((button) => { button.disabled = true; });
+        const intent = event.submitter?.value === "edit" ? "edit" : "home";
+        try {
+          const response = await fetch(`${API_ORIGIN}/api/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: nameInput.value, password: passwordInput.value }),
+          });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || "ログインできませんでした");
+          const fragment = new URLSearchParams({ token: data.token, name: data.displayName, view: intent });
+          window.location.assign(`${API_ORIGIN}/#${fragment}`);
+        } catch (loginError) {
+          error.textContent = loginError instanceof Error ? loginError.message : "ログインできませんでした";
+          error.style.display = "block";
+          buttons.forEach((button) => { button.disabled = false; });
+        }
+      });
+    </script>
+  </body>
+</html>
