@@ -81,6 +81,9 @@
       const API_ORIGIN = "https://nexus-member-profile-20261112.laborobo.chatgpt.site";
       const TOKEN_STORAGE_KEY = "nexus_member_token";
       const NAME_STORAGE_KEY = "nexus_member_name";
+      const pageParams = new URLSearchParams(window.location.search);
+      const returnedMotivationResult = pageParams.get("motivationResult");
+      const validMotivationResults = new Set(["otaku", "zero", "napoleon", "shoshu"]);
       const loginMain = document.querySelector("main");
       const appShell = document.getElementById("app-shell");
       const appFrame = document.getElementById("app-frame");
@@ -93,11 +96,14 @@
       const openApp = (token, displayName, view = "home") => {
         localStorage.setItem(TOKEN_STORAGE_KEY, token);
         localStorage.setItem(NAME_STORAGE_KEY, displayName || "NEXUSメンバー");
-        const fragment = new URLSearchParams({ token, name: displayName || "NEXUSメンバー", view });
+        const hasReturnedResult = validMotivationResults.has(returnedMotivationResult);
+        const fragment = new URLSearchParams({ token, name: displayName || "NEXUSメンバー", view: hasReturnedResult ? "edit" : view });
+        if (hasReturnedResult) fragment.set("motivationResult", returnedMotivationResult);
         appFrame.src = `${API_ORIGIN}/#${fragment}`;
         loginMain.hidden = true;
         appShell.hidden = false;
         document.body.classList.add("app-open");
+        if (hasReturnedResult) window.history.replaceState(null, "", window.location.pathname);
       };
       const closeApp = () => {
         localStorage.removeItem(TOKEN_STORAGE_KEY);
