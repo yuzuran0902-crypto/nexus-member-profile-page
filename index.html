@@ -12,7 +12,13 @@
       body { margin:0; min-height:100vh; color:var(--ink); font-family:"Hiragino Sans","Yu Gothic",Arial,sans-serif; background:linear-gradient(125deg,#dff5ff 0%,#e9e5ff 28%,#ffe1ef 55%,#ffe7d8 76%,#fff3bd 100%); }
       body::before { content:""; position:fixed; width:34rem; height:34rem; left:-12rem; top:-12rem; background:url("./nexus-symbol.png") center/contain no-repeat; opacity:.12; transform:rotate(12deg); pointer-events:none; }
       body::after { content:""; position:fixed; width:26rem; height:26rem; right:-8rem; bottom:-9rem; border-radius:50%; background:#ed8fbd55; filter:blur(60px); pointer-events:none; }
+      body.app-open { overflow:hidden; background:#fffdf6; }
+      body.app-open::before,body.app-open::after { display:none; }
       main { position:relative; min-height:100vh; display:grid; place-items:center; padding:2.5rem 1.25rem; }
+      main[hidden] { display:none; }
+      #app-shell { position:fixed; inset:0; z-index:100; background:#fffdf6; }
+      #app-shell[hidden] { display:none; }
+      #app-frame { display:block; width:100%; height:100%; border:0; background:#fffdf6; }
       .card { width:min(100%,28rem); padding:2.5rem; border:1px solid #ffffffcc; border-radius:2.15rem; background:#fffffff0; box-shadow:0 30px 90px #1721392e; backdrop-filter:blur(18px); }
       .brand { display:flex; align-items:center; gap:.8rem; }
       .mark { width:3rem; height:3rem; padding:.45rem; border-radius:1rem; background:var(--ink); box-shadow:0 8px 20px #17213933; }
@@ -67,14 +73,44 @@
         </form>
       </section>
     </main>
+    <section id="app-shell" aria-label="NEXUS MEMBER BOOK" hidden>
+      <iframe id="app-frame" title="NEXUS MEMBER BOOK プロフィール画面" allow="web-share" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </section>
     <script>
       const API_ORIGIN = "https://nexus-member-profile-20261112.laborobo.chatgpt.site";
+      const TOKEN_STORAGE_KEY = "nexus_member_token";
+      const NAME_STORAGE_KEY = "nexus_member_name";
+      const loginMain = document.querySelector("main");
+      const appShell = document.getElementById("app-shell");
+      const appFrame = document.getElementById("app-frame");
       const form = document.getElementById("login-form");
       const error = document.getElementById("error");
       const nameInput = document.getElementById("name");
       const passwordInput = document.getElementById("password");
       const passwordToggle = document.getElementById("password-toggle");
       const buttons = [...form.querySelectorAll("button")];
+      const openApp = (token, displayName, view = "home") => {
+        localStorage.setItem(TOKEN_STORAGE_KEY, token);
+        localStorage.setItem(NAME_STORAGE_KEY, displayName || "NEXUSメンバー");
+        const fragment = new URLSearchParams({ token, name: displayName || "NEXUSメンバー", view });
+        appFrame.src = `${API_ORIGIN}/#${fragment}`;
+        loginMain.hidden = true;
+        appShell.hidden = false;
+        document.body.classList.add("app-open");
+      };
+      const closeApp = () => {
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
+        localStorage.removeItem(NAME_STORAGE_KEY);
+        appFrame.src = "about:blank";
+        appShell.hidden = true;
+        loginMain.hidden = false;
+        document.body.classList.remove("app-open");
+        passwordInput.value = "";
+        buttons.forEach((button) => { button.disabled = false; });
+      };
+      window.addEventListener("message", (event) => {
+        if (event.origin === API_ORIGIN && event.data?.type === "nexus-logout") closeApp();
+      });
       passwordToggle.addEventListener("click", () => {
         const visible = passwordInput.type === "text";
         passwordInput.type = visible ? "password" : "text";
@@ -95,14 +131,15 @@
           });
           const data = await response.json();
           if (!response.ok) throw new Error(data.error || "ログインできませんでした");
-          const fragment = new URLSearchParams({ token: data.token, name: data.displayName, view: intent });
-          window.location.assign(`${API_ORIGIN}/#${fragment}`);
+          openApp(data.token, data.displayName, intent);
         } catch (loginError) {
           error.textContent = loginError instanceof Error ? loginError.message : "ログインできませんでした";
           error.style.display = "block";
           buttons.forEach((button) => { button.disabled = false; });
         }
       });
+      const savedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
+      if (savedToken) openApp(savedToken, localStorage.getItem(NAME_STORAGE_KEY) || "NEXUSメンバー");
     </script>
   </body>
 </html>
