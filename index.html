@@ -26,7 +26,7 @@
       label { display:block; margin-top:1rem; font-size:.82rem; font-weight:900; }
       input { width:100%; margin-top:.55rem; padding:.9rem 1rem; border:2px solid #1721391f; border-radius:1rem; background:#fafafa; color:var(--ink); font:inherit; font-size:.9rem; font-weight:700; outline:none; }
       input:focus { border-color:var(--ink); background:white; }
-      .hint { margin:1rem 0 0; padding:.8rem 1rem; border-radius:1rem; background:#fff1bd; font-size:.82rem; font-weight:800; line-height:1.6; }
+      .hint { margin:.55rem 0 0; padding:.8rem 1rem; border-radius:1rem; background:#fff1bd; font-size:.82rem; font-weight:800; line-height:1.6; }
       .hint strong { margin-right:.55rem; color:#c06a00; font-size:.7rem; letter-spacing:.12em; }
       .password-wrap { position:relative; display:block; margin-top:.55rem; }
       .password-wrap input { margin-top:0; padding-right:5.3rem; }
@@ -53,8 +53,9 @@
         <p class="lead">あだ名を入力してください。あだ名がない方は本名でログインできます。</p>
         <form id="login-form">
           <label>あだ名（ない方は本名）<input id="name" name="name" autocomplete="username" placeholder="例：はなちゃん" maxlength="80" required /></label>
+          <label for="password">パスワード</label>
           <p class="hint"><strong>ヒント</strong>感情を出し、〇〇〇〇を生み出す</p>
-          <label>パスワード<span class="password-wrap"><input id="password" name="password" type="text" inputmode="text" lang="ja" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" required /><button id="password-toggle" class="password-toggle" type="button" aria-label="パスワードを隠す">隠す</button></span></label>
+          <span class="password-wrap"><input id="password" name="password" type="text" inputmode="text" lang="ja" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" required /><button id="password-toggle" class="password-toggle" type="button" aria-label="パスワードを隠す">隠す</button></span>
           <p class="note">日本語入力・漢字変換に対応しています</p>
           <p id="error" class="error" role="alert"></p>
           <div class="actions">
